@@ -1,0 +1,5 @@
+[install]
+# Classic npm-style layout: all packages in the root node_modules.
+# The default "isolated" layout uses symlinks that some editors' TypeScript servers
+# can't follow ("Cannot find type definition file for 'bun'").
+linker = "hoisted"
