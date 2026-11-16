@@ -7,7 +7,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 export default function HomePage() {
   const health = useQuery({
     queryKey: ["health"],
-    queryFn: async () => (await axios.get<HealthResponse>("/api/health")).data,
+    // 503 still carries a HealthResponse (API up, database down), so don't treat it as an error.
+    queryFn: async () =>
+      (await axios.get<HealthResponse>("/api/health", { validateStatus: (s) => s === 200 || s === 503 })).data,
   });
 
   return (
@@ -24,6 +26,16 @@ export default function HomePage() {
             {health.isSuccess && <span>connected (uptime {health.data.uptimeSeconds}s)</span>}
             {health.isError && <span className="text-destructive">unreachable</span>}
           </p>
+          {health.isSuccess && (
+            <p>
+              <span className="font-medium">Database: </span>
+              {health.data.database === "connected" ? (
+                <span>connected</span>
+              ) : (
+                <span className="text-destructive">unreachable</span>
+              )}
+            </p>
+          )}
           {health.isError && <ErrorAlert error={health.error} fallback="Could not reach the API" />}
         </CardContent>
       </Card>

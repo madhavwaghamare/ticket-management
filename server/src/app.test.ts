@@ -20,12 +20,13 @@ afterAll(() => {
 });
 
 describe("API", () => {
-  test("GET /api/health returns ok", async () => {
+  test("GET /api/health reports API and database status", async () => {
     const res = await fetch(`${baseUrl}/api/health`);
-    expect(res.status).toBe(200);
     const body = (await res.json()) as HealthResponse;
-    expect(body.ok).toBe(true);
     expect(typeof body.uptimeSeconds).toBe("number");
+    // 200 + connected when Postgres is reachable, 503 + unreachable otherwise
+    expect(res.status).toBe(body.database === "connected" ? 200 : 503);
+    expect(body.ok).toBe(body.database === "connected");
   });
 
   test("unknown API route returns 404 JSON", async () => {

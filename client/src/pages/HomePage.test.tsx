@@ -11,11 +11,19 @@ describe("HomePage", () => {
     vi.resetAllMocks();
   });
 
-  it("shows connected when the API is healthy", async () => {
-    mockedAxios.get.mockResolvedValue({ data: { ok: true, uptimeSeconds: 12 } });
+  it("shows connected when the API and database are healthy", async () => {
+    mockedAxios.get.mockResolvedValue({ data: { ok: true, uptimeSeconds: 12, database: "connected" } });
     renderWithQuery(<HomePage />);
     expect(await screen.findByText("connected (uptime 12s)")).toBeInTheDocument();
-    expect(mockedAxios.get).toHaveBeenCalledWith("/api/health");
+    expect(screen.getByText("connected")).toBeInTheDocument();
+    expect(mockedAxios.get).toHaveBeenCalledWith("/api/health", expect.anything());
+  });
+
+  it("shows the database as unreachable when the API reports it down", async () => {
+    mockedAxios.get.mockResolvedValue({ data: { ok: false, uptimeSeconds: 3, database: "unreachable" } });
+    renderWithQuery(<HomePage />);
+    expect(await screen.findByText("connected (uptime 3s)")).toBeInTheDocument();
+    expect(screen.getByText("unreachable")).toBeInTheDocument();
   });
 
   it("shows an error when the API is unreachable", async () => {

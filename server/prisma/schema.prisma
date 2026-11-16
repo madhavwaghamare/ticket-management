@@ -1,0 +1,11 @@
+// Prisma 7: the connection URL lives in prisma.config.ts (CLI) and in the driver adapter (app code),
+// not in this file. Models are added per phase (Better Auth's tables come in Phase 2).
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
